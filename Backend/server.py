@@ -10,7 +10,7 @@ app = Flask(__name__)
 CORS(app)
 
 # ==== MongoDB Atlas Configuration ====
-app.config["MONGO_URI"] = "your_mongo_connection_string"
+app.config["MONGO_URI"] = "mongodb+srv://ojediranifeoluwa2:<db_password>@cluster0.7c45aoe.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 mongo = PyMongo(app)
 
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
