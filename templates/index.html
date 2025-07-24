@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Web Chat</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <div class="container">
+
+    <!-- Sidebar: User Info & Contacts -->
+    <div class="sidebar">
+      <div class="brand">💬 Chat App</div>
+      <div class="user-id" id="user-id">ID: ...</div>
+
+      <input type="text" id="usernameInput" placeholder="Enter your username" />
+      <button id="setUsernameBtn">Set Username</button>
+
+      <hr />
+
+      <div class="user-list" id="userList">
+        <!-- Dynamic list of users will appear here -->
+      </div>
+    </div>
+
+    <!-- Chat Section -->
+    <div class="chat-area">
+      <div class="chat-header" id="chatHeader">Select a user to start chatting</div>
+
+      <div class="chat-box" id="chatBox">
+        <!-- Chat messages will appear here -->
+      </div>
+
+      <div class="chat-input">
+        <input type="text" id="messageInput" placeholder="Type your message..." autocomplete="off" />
+        <button id="sendBtn">Send</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Socket.IO Client -->
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <script src="{{ url_for('static', filename='chat.js') }}"></script>
+</body>
+</html>
