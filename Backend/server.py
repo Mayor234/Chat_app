@@ -1,29 +1,40 @@
+import os
+import random
+import string
+from datetime import datetime
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
 from flask_pymongo import PyMongo
 from flask_cors import CORS
-from datetime import datetime
-import random
-import string
 
-app = Flask(__name__)
+# ==== Flask App Setup with Custom Folders ====
+app = Flask(
+    __name__,
+    template_folder=os.path.join(os.path.dirname(__file__), '../templates'),
+    static_folder=os.path.join(os.path.dirname(__file__), '../static')
+)
 CORS(app)
 
 # ==== MongoDB Atlas Configuration ====
 app.config["MONGO_URI"] = "mongodb+srv://ojediranifeoluwa2:<db_password>@cluster0.7c45aoe.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 mongo = PyMongo(app)
 
+# ==== Socket.IO Initialization ====
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 
+# In-memory user tracking
 users = {}  # sid -> {'username': ..., 'id': ...}
 
 def generate_user_id():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
+# ==== Routes ====
 @app.route('/')
 def index():
     return render_template('index.html')
 
+
+# ==== Socket.IO Events ====
 
 @socketio.on('connect')
 def handle_connect():
@@ -71,13 +82,13 @@ def load_history(data):
     user1_id = users[request.sid]['id']
     user2_id = data['with']
 
-    # Mark unread messages as read
+    # Mark messages as read
     mongo.db.messages.update_many(
         {"sender_id": user2_id, "recipient_id": user1_id, "is_read": False},
         {"$set": {"is_read": True}}
     )
 
-    # Fetch chat history
+    # Retrieve chat history
     messages = mongo.db.messages.find({
         "$or": [
             {"sender_id": user1_id, "recipient_id": user2_id},
@@ -106,10 +117,11 @@ def handle_disconnect():
         emit('user_list', get_user_list(), broadcast=True)
 
 
+# ==== Helper Functions ====
+
 def get_user_list():
     return [{'id': info['id'], 'username': info['username']}
             for info in users.values() if info['username']]
-
 
 def get_username_by_id(uid):
     for info in users.values():
@@ -117,5 +129,7 @@ def get_username_by_id(uid):
             return info['username']
     return "Unknown"
 
+
+# ==== Run the Server ====
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000)
